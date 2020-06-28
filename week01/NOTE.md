@@ -1,1 +1,19 @@
-学习笔记
+# Week01 学习笔记
+### 通过各种库的使用，了解爬虫工作流程
+1. 使用requests库获取页面
+2. 使用BeautifulSoup库或者Xpath来解析页面，提取需要的信息
+3. 使用pandas将提取到的信息做存储
+### 初步使用Scrapy框架
+1. Scrapy中的Downloader组件用于获取需要的页面
+2. Scrapy中的Spiders组件解析页面，提取需要的信息
+3. Scrapy中的Pipelines组件将提取到的信息做存储
+4. Scrapy框架的整体运转流程
+### Pyhton基础和前端基础
+1. Python基础语法
+2. HTML和HTTP基础知识
+### 遇到的问题
+1. 使第一次获取的时候从详情页面获取，其实可以从第一个页面获取
+2. 当Scrapy需要使用Pipelines组件存储信息时，需要先在setting.py中打开对应的开关，否则会有问题。
+### 作业说明
+1. 作业一为maoyan_requests_bs4.py文件，输出结果为maoyan_requests_bs4_result.csv文件
+2. 作业二为maoyanmovies项目，输出结果为maoyanmovies/maoyanmovies/maoyanmovies_scrapy_result.csv文件
