@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+
 import time
 import json
 import socket
@@ -7,6 +9,7 @@ import platform
 import subprocess
 from ipaddress import ip_address
 from collections import defaultdict
+from multiprocessing.pool import Pool as ProcPool
 from multiprocessing.dummy import Pool as ThreadPool
 
 
@@ -38,11 +41,10 @@ def ip_format(ipaddress):
 
 
 def ping_test(ip):
-    ret = subprocess.call("ping -n 4 {} > nul".format(ip),
-                          shell=True) if platform.system() == "Windows" else subprocess.call(
-                          "ping -c 4 {} > /dev/null".format(ip), shell=True)
-    return False if ret else True
-
+    result = subprocess.call("ping -n 4 {} > nul".format(ip),
+                             shell=True) if platform.system() == "Windows" else subprocess.call(
+                             "ping -c 4 {} > /dev/null".format(ip), shell=True)
+    return False if result else True
 
 
 
@@ -66,9 +68,12 @@ def scan(ip, port=None):
 
 
 
-def run(ipaddress, concurrency, function, write, view):
+def run(ipaddress, concurrency, mode, function, write, view):
     ip_list = ip_format(ipaddress)
-    pool = ThreadPool(concurrency)
+    if mode == 'thread':
+        pool = ThreadPool(concurrency)
+    else:
+        pool = ProcPool(concurrency)
     t1 = time.time()
     result_list = pool.map(scan, ip_list)
     t2 = time.time()
@@ -82,7 +87,7 @@ def run(ipaddress, concurrency, function, write, view):
         t4 = time.time()
         available_ip_port = defaultdict(list)
         for result in result_list:
-            if isinstance(result,tuple):
+            if isinstance(result, tuple):
                 available_ip_port[result[0]].append(result[1])
         if view:
             print('tcp time: {}'.format(t4 - t3))
@@ -98,6 +103,8 @@ def run(ipaddress, concurrency, function, write, view):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Port Scanner.')
     parser.add_argument('-n', '--number', default=1, type=int, help='Number of concurrency.')
+    parser.add_argument('-m', '--mode', default='thread', choices=['thread', 'proc'],
+                        help='"ping": Scans for available IP. "tcp": Scans for available ports.')
     parser.add_argument('-f', '--function', default='ping', choices=['ping', 'tcp'],
                         help='"ping": Scans for available IP. "tcp": Scans for available ports.')
     parser.add_argument('-ip', '--ipaddress', default='127.0.0.1',
@@ -106,4 +113,5 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--view', action='store_true', help='Check scanner run time.')
     args = parser.parse_args()
 
-    run(args.ipaddress, args.number, args.function, args.write, args.view)
+
+    run(args.ipaddress, args.number, args.mode, args.function, args.write, args.view)
